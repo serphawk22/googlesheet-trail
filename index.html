@@ -243,6 +243,7 @@ label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5p
 </head>
 <body>
 
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div style="display:flex;align-items:center">
@@ -1007,13 +1008,10 @@ async function saveContact(){
   save();cm('formModal');renderAll();checkFollowUps();
 }
 
-// â”€â”€ QUICK STATUS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── QUICK STATUS ──────────────────────────────────────────────────────────
 function quickStatus(id, val){
   const c=contacts.find(x=>x.id===id); if(!c) return;
   c.status=val; save(); renderAll();
-  toast(`âœ“ ${c.name} â†’ ${ST[val]?.label}`);
-}
-
 // â”€â”€ NOTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openNotes(id){
   noteId=id;const c=contacts.find(x=>x.id===id);
@@ -1037,7 +1035,7 @@ function saveNote(){
   rnl(c);renderAll();
 }
 
-// â”€â”€ DELETE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DELETE ────────────────────────────────────────────────────────────────────────
 function openDel(id){delId=id;document.getElementById('dname').textContent=contacts.find(x=>x.id===id)?.name||'';document.getElementById('delModal').classList.add('open');}
 function confirmDel(){contacts=contacts.filter(x=>x.id!==delId);save();cm('delModal');renderAll();toast('Deleted');}
 
