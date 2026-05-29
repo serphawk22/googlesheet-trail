@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCM BPO â€” CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#2563A8;--brand-dark:#1A4A82;--brand-light:#EBF3FC;--brand-mid:#4A86C8;
+  --accent:#0EA5E9;--bg:#F5F8FC;--surface:#FFFFFF;--border:#DDE5EF;
+  --text:#1A2540;--muted:#6B7A99;
+  --s-neutral:#6B7A99;--s-neutral-bg:#F0F2F7;
+  --s-negative:#DC2626;--s-negative-bg:#FEF2F2;
+  --s-positive:#16A34A;--s-positive-bg:#F0FDF4;
+  --s-meetings:#D97706;--s-meetings-bg:#FFFBEB;
+  --s-converted:#7C3AED;--s-converted-bg:#F5F3FF;
+  --s-willing:#0891B2;--s-willing-bg:#ECFEFF;
+  --shadow:0 1px 4px rgba(37,99,168,.08),0 4px 16px rgba(37,99,168,.06);
+  --radius:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--brand);padding:0 20px;height:58px;display:flex;align-items:center;
+  justify-content:space-between;box-shadow:0 2px 12px rgba(37,99,168,.25);position:sticky;top:0;z-index:100;}
+.logo-box{background:#fff;border-radius:7px;padding:3px 10px 3px 8px;display:flex;align-items:center;gap:5px;}
+.logo-scm{font-weight:700;font-size:15px;color:var(--brand);}
+.logo-bpo{font-weight:400;font-size:15px;color:var(--brand);}
+.logo-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;margin-bottom:5px;}
+.crm-lbl{color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-left:8px;}
+.topbar-r{display:flex;align-items:center;gap:7px;}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:.15s;white-space:nowrap;}
+.btn-p{background:var(--brand);color:#fff;} .btn-p:hover{background:var(--brand-dark);}
+.btn-o{background:var(--surface);color:var(--brand);border:1px solid var(--brand);} .btn-o:hover{background:var(--brand-light);}
+.btn-ghost{color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);} .btn-ghost:hover{background:rgba(255,255,255,.22);}
+.btn-white{background:#fff;color:var(--brand);font-weight:700;}
+.btn-d{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;} .btn-d:hover{background:#DC2626;color:#fff;}
+.btn-sm{padding:5px 10px;font-size:11.5px;}
+
+/* SYNC BAR */
+.sync-bar{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:7px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.sync-pill{display:flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap;}
+.sdot{width:8px;height:8px;border-radius:50%;background:#9CA3AF;transition:.3s;flex-shrink:0;}
+.sdot.syncing{background:#F59E0B;animation:blink 1s infinite;}
+.sdot.ok{background:#16A34A;} .sdot.err{background:#DC2626;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.sstat{color:var(--muted);}
+.url-prev{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:3px 9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:380px;}
+.sync-time{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto;white-space:nowrap;}
+.ibtn{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;
+  border:1px solid var(--border);background:var(--surface);font-family:inherit;
+  font-size:11.5px;cursor:pointer;color:var(--brand);transition:.15s;white-space:nowrap;}
+.ibtn:hover{background:var(--brand-light);}
+
+/* MAIN */
+.main{max-width:1440px;margin:0 auto;padding:20px 18px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;margin-bottom:18px;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 13px;cursor:pointer;transition:.15s;}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.sc.active{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-light);}
+.sc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:4px;}
+.sc-num{font-size:24px;font-weight:700;line-height:1;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
+.sw{position:relative;flex:1;min-width:200px;}
+.sw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.sinput{width:100%;padding:8px 11px 8px 34px;border:1px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13.5px;background:var(--surface);outline:none;transition:.15s;}
+.sinput:focus{border-color:var(--brand);}
+.vtog{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.vb{padding:7px 12px;background:none;border:none;cursor:pointer;color:var(--muted);transition:.15s;}
+.vb.active{background:var(--brand);color:#fff;}
+
+/* FILTER PILL */
+.fpill{display:none;background:var(--brand-light);border:1px solid #BFDBFE;border-radius:8px;
+  padding:6px 12px;font-size:12.5px;color:var(--brand);margin-bottom:12px;align-items:center;gap:7px;}
+.fpill.on{display:flex;}
+.fpill button{background:none;border:none;cursor:pointer;color:var(--brand);font-weight:700;margin-left:auto;}
+
+/* FOLLOW-UP TODAY BANNER */
+.fu-banner{display:none;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;
+  padding:8px 14px;font-size:12.5px;color:#92400E;margin-bottom:12px;align-items:center;gap:8px;}
+.fu-banner.on{display:flex;}
+
+/* TABLE */
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow-x:auto;box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;min-width:1100px;}
+thead th{background:#F8FAFD;padding:10px 12px;text-align:left;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.7px;color:var(--muted);border-bottom:1px solid var(--border);
+  white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#F8FAFD;}
+td{padding:10px 12px;font-size:13px;vertical-align:middle;}
+td.nm{font-weight:600;}
+td.co{color:var(--muted);font-size:12px;}
+td.mn{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--muted);}
+td.des{font-size:12px;color:var(--muted);}
+/* QUICK ACTION BUTTONS */
+.qa-wrap{display:flex;gap:4px;align-items:center;}
+.qa{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:13px;transition:.15s;text-decoration:none;flex-shrink:0;}
+.qa:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.qa-call{background:#DCFCE7;color:#15803D;}
+.qa-sms{background:#EDE9FE;color:#7C3AED;}
+.qa-wa{background:#d1fae5;color:#15803D;}
+.qa-email{background:#DBEAFE;color:#1D4ED8;}
+.qa-disabled{background:#F3F4F6;color:#D1D5DB;cursor:not-allowed;pointer-events:none;opacity:.5;}
+
+.abts{display:flex;gap:4px;flex-wrap:nowrap;}
+.fu-due{color:#DC2626;font-weight:700;}
+.fu-soon{color:#D97706;font-weight:600;}
+.fu-ok{color:var(--muted);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.b-neutral{color:var(--s-neutral);background:var(--s-neutral-bg);}
+.b-negative{color:var(--s-negative);background:var(--s-negative-bg);}
+.b-positive{color:var(--s-positive);background:var(--s-positive-bg);}
+.b-meetings{color:var(--s-meetings);background:var(--s-meetings-bg);}
+.b-converted{color:var(--s-converted);background:var(--s-converted-bg);}
+.b-willing{color:var(--s-willing);background:var(--s-willing-bg);}
+
+/* INLINE STATUS SELECT */
+.status-sel{border:none;border-radius:20px;font-size:10.5px;font-weight:600;
+  padding:3px 8px;cursor:pointer;font-family:inherit;outline:none;appearance:none;
+  -webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 5px center;padding-right:20px;
+  transition:box-shadow .15s;}
+.status-sel:hover{box-shadow:0 0 0 2px rgba(37,99,168,.25);}
+.status-sel.b-neutral{color:var(--s-neutral);background-color:var(--s-neutral-bg);}
+.status-sel.b-negative{color:var(--s-negative);background-color:var(--s-negative-bg);}
+.status-sel.b-positive{color:var(--s-positive);background-color:var(--s-positive-bg);}
+.status-sel.b-meetings{color:var(--s-meetings);background-color:var(--s-meetings-bg);}
+.status-sel.b-converted{color:var(--s-converted);background-color:var(--s-converted-bg);}
+.status-sel.b-willing{color:var(--s-willing);background-color:var(--s-willing-bg);}
+
+/* SOURCE CHIP */
+.src-chip{font-size:10px;padding:2px 7px;border-radius:12px;font-weight:600;white-space:nowrap;}
+.src-li{background:#DBEAFE;color:#1D4ED8;}
+.src-ce{background:#FCE7F3;color:#9D174D;}
+.src-ref{background:#D1FAE5;color:#065F46;}
+.src-ev{background:#FEF3C7;color:#92400E;}
+.src-wa{background:#DCFCE7;color:#15803D;}
+.src-wb{background:#EDE9FE;color:#6D28D9;}
+.src-ot{background:#F3F4F6;color:#374151;}
+
+/* LINKEDIN LINK */
+.li-link{color:var(--brand);font-size:11.5px;text-decoration:none;}
+.li-link:hover{text-decoration:underline;}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:start;}
+.kcol{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.khead{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ktitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;}
+.kcnt{font-size:10px;background:var(--brand-light);color:var(--brand);border-radius:20px;padding:2px 7px;font-weight:700;}
+.kbody{padding:8px;display:flex;flex-direction:column;gap:7px;min-height:50px;}
+.kcard{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;cursor:pointer;transition:.15s;}
+.kcard:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(37,99,168,.1);}
+.kc-name{font-size:12.5px;font-weight:700;margin-bottom:1px;}
+.kc-des{font-size:11px;color:var(--brand-mid);margin-bottom:3px;}
+.kc-co{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.kc-loc{font-size:10.5px;color:var(--muted);}
+.kc-fu{font-size:10px;margin-top:5px;padding:2px 6px;border-radius:4px;display:inline-block;}
+.kc-fu.due{background:#FEF2F2;color:#DC2626;}
+.kc-fu.soon{background:#FFFBEB;color:#D97706;}
+.kc-note{font-size:10.5px;color:var(--muted);background:#fff;border-radius:4px;padding:3px 6px;
+  margin-top:5px;border-left:2px solid var(--brand-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.42);
+  backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:12px;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:14px;padding:24px;width:680px;
+  max-width:100%;max-height:92vh;overflow-y:auto;
+  box-shadow:0 24px 64px rgba(10,20,50,.18);animation:mi .2s ease;}
+@keyframes mi{from{opacity:0;transform:translateY(10px) scale(.97);}to{opacity:1;transform:none;}}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.mtitle{font-size:17px;font-weight:700;}
+.mclose{background:none;border:none;cursor:pointer;color:var(--muted);font-size:22px;line-height:1;}
+.mclose:hover{color:var(--text);}
+.msec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--brand);
+  margin:14px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.full{grid-column:1/-1;}
+.fg.third{grid-column:span 1;}
+label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+.fi,.fsl,.fta,.fdate{padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13.5px;color:var(--text);background:var(--bg);outline:none;transition:.15s;width:100%;}
+.fi:focus,.fsl:focus,.fta:focus,.fdate:focus{border-color:var(--brand);background:#fff;}
+.fta{resize:vertical;min-height:70px;}
+.mfooter{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;}
+
+/* SETUP MODAL */
+.step{display:flex;gap:12px;margin-bottom:14px;}
+.snum{width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;
+  font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.stitle{font-weight:700;font-size:13.5px;margin-bottom:3px;}
+.sdesc{font-size:12.5px;color:var(--muted);line-height:1.55;}
+.ctag{font-family:'DM Mono',monospace;background:#F0F2F7;padding:1px 5px;border-radius:4px;font-size:11px;}
+.ibox{background:var(--brand-light);border:1px solid #BFDBFE;border-radius:8px;
+  padding:10px 13px;font-size:12.5px;color:var(--brand);margin-bottom:14px;line-height:1.6;}
+
+/* NOTES */
+.nlist{display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;margin-bottom:12px;}
+.ni{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.nm{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-family:'DM Mono',monospace;}
+.nt{font-size:12.5px;}
+.enotes{text-align:center;color:var(--muted);font-size:13px;padding:14px 0;}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty h3{font-size:17px;color:var(--text);margin-bottom:6px;}
+.empty p{font-size:13px;margin-bottom:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--text);color:#fff;
+  border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(70px);opacity:0;transition:.28s cubic-bezier(.4,0,.2,1);}
+.toast.on{transform:none;opacity:1;}
+
+@media(max-width:1200px){.stats{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr);}.kanban{grid-template-columns:repeat(2,1fr);}.fgrid{grid-template-columns:1fr;}.fg.full{grid-column:1;}}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}.kanban{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center">
+    <div class="logo-box">
+      <span class="logo-scm">SCM</span><span class="logo-dot"></span><span class="logo-bpo">Bpo</span>
+    </div>
+    <span class="crm-lbl">CRM</span>
+  </div>
+  <div class="topbar-r">
+    <a href="https://campaign.scmbpo.com" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="text-decoration:none">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Campaigns
+    </a>
+    <button class="btn btn-ghost btn-sm" onclick="openSetup()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Sheet Setup
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Export CSV
+    </button>
+    <button class="btn btn-white btn-sm" onclick="openAdd()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Contact
+    </button>
+  </div>
+</div>
+
+<!-- SYNC BAR -->
+<div class="sync-bar">
+  <div class="sync-pill"><div class="sdot" id="sd"></div><span class="sstat" id="sl">Idle</span></div>
+  <div class="url-prev" id="urlPrev">No sheet connected â€” click Sheet Setup</div>
+  <button class="ibtn" onclick="syncNow()">
+    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+    Sync Now
+  </button>
+  <span class="sync-time" id="st"></span>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="stats" id="statsStrip"></div>
+
+  <!-- FOLLOW-UP BANNER -->
+  <div class="fu-banner" id="fuBanner">
+    ðŸ“… <span id="fuText"></span>
+    <button style="background:none;border:none;cursor:pointer;color:#92400E;font-weight:700;margin-left:auto;" onclick="document.getElementById('fuBanner').classList.remove('on')">âœ•</button>
+  </div>
+
+  <div class="fpill" id="fp">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    <span id="flabel">Filtered</span>
+    <button onclick="clearFilter()">âœ• Clear</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="sw">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="sinput" id="si" placeholder="Search name, company, email, cityâ€¦" oninput="renderAll()">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex:2;min-width:280px;">
+      <input class="sinput" id="aiq" placeholder="AI Search Prompt (e.g. SaaS Founders, Developers)">
+      <input class="sinput" id="ailoc" placeholder="Location (e.g. Austin, TX)" style="max-width:180px;">
+      <button class="btn btn-o" id="aibtn" onclick="aiGenerate()">AI Search &amp; Generate 10</button>
+    </div>
+    <div class="vtog">
+      <button class="vb active" id="bt" onclick="setView('table')" title="Table">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+      </button>
+      <button class="vb" id="bk" onclick="setView('kanban')" title="Kanban">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div id="tv">
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>Contact Name</th>
+          <th>Designation</th>
+          <th>Company</th>
+          <th>Country</th>
+          <th>City</th>
+          <th>Query</th>
+          <th>Location</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>LinkedIn</th>
+          <th>Co. Size</th>
+          <th>Lead Source</th>
+          <th>Status</th>
+          <th>Follow-up Date</th>
+          <th>Follow-up Type</th>
+          <th>Last Contacted</th>
+          <th>Follow-up Notes</th>
+          <th>Reach Out</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- KANBAN VIEW -->
+  <div id="kv" style="display:none">
+    <div class="kanban" id="kb"></div>
+  </div>
+</div>
+
+<!-- ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ SETUP MODAL ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ -->
+<div class="overlay" id="setupModal">
+  <div class="modal" style="width:580px">
+    <div class="mhead"><div class="mtitle">🔗 Google Sheet Setup</div><button class="mclose" onclick="cm('setupModal')">×</button></div>
+    <div class="ibox">
+      Your Google Sheet headers in <strong>Row 1</strong> (case-insensitive):<br>
+      <span class="ctag">Contact Name</span> <span class="ctag">Designation</span> <span class="ctag">Company Name</span>
+      <span class="ctag">Country</span> <span class="ctag">City</span> <span class="ctag">Phone</span>
+      <span class="ctag">Email</span> <span class="ctag">LinkedIn URL</span> <span class="ctag">Company Size</span>
+      <span class="ctag">Source</span> <span class="ctag">Status</span> <span class="ctag">Follow-up Date</span>
+    </div>
+    <div class="step"><div class="snum">1</div><div><div class="stitle">Open your Google Sheet</div><div class="sdesc">Make sure Row 1 has the column headers listed above.</div></div></div>
+    <div class="step"><div class="snum">2</div><div><div class="stitle">Publish as CSV</div><div class="sdesc"><strong>File → Share → Publish to web</strong> → select your sheet tab → choose <strong>Comma-separated values (.csv)</strong> → Publish → copy URL.</div></div></div>
+    <div class="step"><div class="snum">3</div><div><div class="stitle">Paste URL below</div><div class="sdesc"><span class="ctag">https://docs.google.com/spreadsheets/d/e/…/pub?gid=0&single=true&output=csv</span></div></div></div>
+    <div class="fg" style="margin-bottom:6px">
+      <label>OpenAI API Key</label>
+      <input class="fi" id="apikey" placeholder="sk-..." type="password">
+      <small style="color:var(--muted)">Stored in browser only, never shared.</small>
+    </div>
+    <div class="fg" style="margin-bottom:6px">
+      <label>Published CSV URL</label>
+      <input class="fi" id="surl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv">
+    </div>
+    <div class="fg" style="margin-bottom:6px">
+      <label>Google Apps Script Write URL (Optional)</label>
+      <input class="fi" id="wurl" placeholder="https://script.google.com/macros/s/.../exec">
+      <small style="color:var(--muted)">Enables direct lead write-back to your sheet. Uses default sheet if left blank.</small>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-o" onclick="cm('setupModal')">Cancel</button>
+      <button class="btn" onclick="saveApiKey()">Save Key</button>
+      <button class="btn btn-p" onclick="saveUrl()">Save &amp; Sync Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ ADD / EDIT MODAL ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ -->
+<div class="overlay" id="formModal">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle" id="ftitle">Add Contact</div><button class="mclose" onclick="cm('formModal')">×</button></div>
+
+    <div class="msec">👤 Contact Info</div>
+    <div class="fgrid">
+      <div class="fg"><label>Contact Name *</label><input class="fi" id="f-name" placeholder="e.g. John Smith"></div>
+      <div class="fg"><label>Designation</label><input class="fi" id="f-des" placeholder="e.g. Logistics Manager"></div>
+    </div>
+
+    <div class="msec">🏢 Company Info</div>
+    <div class="fgrid">
+      <div class="fg"><label>Company Name *</label><input class="fi" id="f-co" placeholder="e.g. FedEx Freight"></div>
+      <div class="fg"><label>Company Size</label><input class="fi" id="f-size" placeholder="e.g. 50-200"></div>
+      <div class="fg"><label>Country</label><input class="fi" id="f-country" placeholder="e.g. Canada"></div>
+      <div class="fg"><label>City</label><input class="fi" id="f-city" placeholder="e.g. Toronto"></div>
+    </div>
+
+    <div class="msec">☎️ Contact Details</div>
+    <div class="fgrid">
+      <div class="fg"><label>Phone</label><input class="fi" id="f-phone" placeholder="+1 416 000 0000"></div>
+      <div class="fg"><label>Email</label><input class="fi" id="f-email" type="email" placeholder="john@company.com"></div>
+      <div class="fg full"><label>LinkedIn URL</label><input class="fi" id="f-li" placeholder="https://linkedin.com/in/johnsmith"></div>
+    </div>
+
+    <div class="msec">📊 CRM Fields</div>
+    <div class="fgrid">
+      <div class="fg"><label>Lead Source</label>
+        <select class="fsl" id="f-src">
+          <option value="">— Select —</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="cold_email">Cold Email</option>
+          <option value="referral">Referral</option>
+          <option value="event">Event</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="website">Website</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select class="fsl" id="f-status">
+          <option value="neutral">Neutral</option>
+          <option value="negative">Negative</option>
+          <option value="positive">Positive</option>
+          <option value="meetings">Meetings Done</option>
+          <option value="willing">Willing to Onboard</option>
+          <option value="converted">Converted</option>
+        </select>
+      </div>
+      <div class="fg"><label>Follow-up Date</label><input class="fdate" id="f-fu" type="date"></div>
+      <div class="fg"><label>Follow-up Type</label>
+        <select class="fsl" id="f-futype">
+          <option value="">— Select —</option>
+          <option value="email">Email</option>
+          <option value="call">Call</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="meeting">Meeting</option>
+        </select>
+      </div>
+      <div class="fg"><label>Last Contacted</label><input class="fdate" id="f-lastcontact" type="date"></div>
+      <div class="fg full"><label>Follow-up Notes</label><input class="fi" id="f-funotes" placeholder="e.g. Send pricing deck, Follow up on proposal…"></div>
+    </div>
+
+    <div class="mfooter">
+      <button class="btn btn-o" onclick="cm('formModal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ NOTES MODAL ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ -->
+<div class="overlay" id="notesModal">
+  <div class="modal" style="width:480px">
+    <div class="mhead"><div class="mtitle" id="ntitle">Notes</div><button class="mclose" onclick="cm('notesModal')">×</button></div>
+    <div class="nlist" id="nlist"></div>
+    <div class="fg"><label>Add Note</label><textarea class="fta" id="nt" placeholder="Type your note…"></textarea></div>
+    <div class="mfooter">
+      <button class="btn btn-o" onclick="cm('notesModal')">Close</button>
+      <button class="btn btn-p" onclick="saveNote()">Add Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ DELETE MODAL ⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯ -->
+<div class="overlay" id="delModal">
+  <div class="modal" style="width:360px">
+    <div class="mhead"><div class="mtitle">Delete Contact?</div><button class="mclose" onclick="cm('delModal')">×</button></div>
+    <p style="font-size:13.5px;color:var(--muted)">Permanently remove <strong id="dname"></strong>? This cannot be undone.</p>
+    <div class="mfooter">
+      <button class="btn btn-o" onclick="cm('delModal')">Cancel</button>
+      <button class="btn btn-d" onclick="confirmDel()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────
+const SK='scmbpo_crm_v4', URLK='scmbpo_sheet_url', TSK='scmbpo_last_sync', AKK='scmbpo_api_key', WSUK='scmbpo_write_url';
+
+// ---- SHEET WRITEBACK (Apps Script Web App) ----
+// This enables: Website -> Google Sheet. (The published CSV sync is read-only.)
+const SHEET_TAB_NAME='Sheet1'; // change to your exact tab name if needed (e.g. "Leads")
+
+async function pushToSheet(contact){
+  const writeUrl = localStorage.getItem(WSUK) || 'https://script.google.com/macros/s/AKfycbyXx9coF_nKbXT1gfOXtekMYwYr4O-l_Rt0xlqrjd7PcQIBHnqXTKt1Sw5wiQJXiU9XMg/exec';
+  const payload={sheetName:SHEET_TAB_NAME, ...contact};
+  const r=await fetch(writeUrl,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload),
+  });
+  const txt=await r.text();
+  let j=null;
+  try{ j=JSON.parse(txt); }catch{ throw new Error('Bad response from Apps Script: '+txt.slice(0,120)); }
+  if(!j || j.ok!==true) throw new Error(j?.error||'Write failed');
+  return true;
+}
+
+// ---- AI CONTACT GENERATION (Local Proxy + Real-time Web Search) ----
+async function aiGenerate(){
+  const q=(document.getElementById('aiq')?.value||'').trim();
+  const loc=(document.getElementById('ailoc')?.value||'').trim();
+  if(!q){toast('Type an AI search query first');return;}
+  
+  // Combine query and location for real-time web search
+  const fullQuery = loc ? `${q} in ${loc}` : q;
+  
+  const btn=document.getElementById('aibtn');
+  if(btn){btn.disabled=true;btn.textContent='Searching & Generating…';}
+  ss('syncing','Searching & Generating…');
+  try{
+    const apikey=localStorage.getItem(AKK)||'';
+    // Increase timeout since searching + GPT-4o extraction takes slightly longer
+    const r=await fetch('/ai_contacts?q='+encodeURIComponent(fullQuery)+'&apikey='+encodeURIComponent(apikey),{signal:AbortSignal.timeout(60000)});
+    if(!r.ok) {
+      if(r.status === 400) {
+        throw new Error('Please configure your OpenAI API Key in Sheet Setup');
+      }
+      throw new Error('AI '+r.status);
+    }
+    const j=await r.json();
+    const items=Array.isArray(j.contacts)?j.contacts:[];
+    if(!items.length) throw new Error('No contacts returned');
+    // Replace list with top 10 generated contacts.
+    contacts=items.slice(0,10).map(x=>({
+      id:uid(),
+      name:(x.name||'').trim(),
+      des:(x.des||'').trim(),
+      company:(x.company||'').trim(),
+      size:(x.size||'').trim(),
+      country:(x.country||'').trim(),
+      city:(x.city||'').trim(),
+      phone:(x.phone||'').trim(),
+      email:(x.email||'').trim(),
+      linkedin:(x.linkedin||'').trim(),
+      services:(x.services||'').trim(),
+      address:(x.address||'').trim(),
+      source:(x.source||'other'),
+      status:(x.status||'neutral'),
+      followup:(x.followup||''),
+      futype:(x.futype||''),
+      lastcontact:(x.lastcontact||''),
+      funotes:(x.funotes||''),
+      notes:[],
+      createdAt:new Date().toISOString(),
+      query:fullQuery,
+      location:loc,
+    })).filter(c=>c.name&&c.company);
+    save();
+    renderAll();
+
+    if(getUrl()){
+      let written=0, failed=0;
+      for(const c of contacts){
+        try{
+          await pushToSheet(c);
+          written++;
+        }catch(_){
+          failed++;
+        }
+      }
+      ss('ok','AI generated');
+      toast(`✓ AI generated ${contacts.length} leads. Sheet write: ${written} added${failed?` (${failed} failed)`:''}`);
+    }else{
+      ss('ok','AI generated');
+      toast('✓ AI generated '+contacts.length+' leads');
+    }
+  }catch(e){
+    ss('err','AI failed');
+    toast('AI failed: '+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='AI Search & Generate 10';}
+  }
+}
+let contacts=[], view='table', fStatus=null, editId=null, noteId=null, delId=null;
+
+const ST={
+  neutral:  {label:'Neutral',            cls:'b-neutral',   col:'#6B7A99'},
+  negative: {label:'Negative',           cls:'b-negative',  col:'#DC2626'},
+  positive: {label:'Positive',           cls:'b-positive',  col:'#16A34A'},
+  meetings: {label:'Meetings Done',      cls:'b-meetings',  col:'#D97706'},
+  converted:{label:'Converted',          cls:'b-converted', col:'#7C3AED'},
+  willing:  {label:'Willing to Onboard', cls:'b-willing',   col:'#0891B2'},
+};
+
+const SRC={
+  linkedin:   {label:'LinkedIn',    cls:'src-li'},
+  cold_email: {label:'Cold Email',  cls:'src-ce'},
+  referral:   {label:'Referral',    cls:'src-ref'},
+  event:      {label:'Event',       cls:'src-ev'},
+  whatsapp:   {label:'WhatsApp',    cls:'src-wa'},
+  website:    {label:'Website',     cls:'src-wb'},
+  other:      {label:'Other',       cls:'src-ot'},
+};
+
+// ── STORAGE ──────────────────────────────────────────────────────────────
+function load(){try{contacts=JSON.parse(localStorage.getItem(SK))||[];}catch{contacts=[];}}
+function save(){localStorage.setItem(SK,JSON.stringify(contacts));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function getUrl(){return localStorage.getItem(URLK)||'';}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────
+// ---- SHEET FETCH ----
+// Direct fetch to docs.google.com is blocked by browser CORS.
+// We proxy through the local server (sheet_proxy.py) at /proxy.
+async function fetchWithFallback(sheetUrl){
+  const u=normalizeSheetUrl(sheetUrl);
+  const r=await fetch('/proxy?url='+encodeURIComponent(u),{signal:AbortSignal.timeout(20000)});
+  if(!r.ok) throw new Error('proxy '+r.status);
+  const txt=await r.text();
+  if(!txt || txt.trim().length<10) throw new Error('Empty response from proxy');
+  return txt;
+}
+
+function normalizeSheetUrl(url){
+  let u=String(url||'').trim();
+  if(!u) return u;
+  // If user pastes the published HTML link, convert to published CSV.
+  u=u.replace(/\/pubhtml(\?.*)?$/i,(m,q)=>{
+    const tail=q?('&'+q.slice(1)):'';
+    return '/pub?output=csv'+tail;
+  });
+  // Best-effort conversion if pubhtml appears mid-string.
+  u=u.replace(/\/pubhtml/i,'/pub?output=csv');
+  return u;
+}
+
+function ss(state,msg){
+  document.getElementById('sd').className='sdot '+state;
+  document.getElementById('sl').textContent=msg;
+}
+function refreshSyncUI(){
+  const u=getUrl();
+  document.getElementById('urlPrev').textContent=u||'No sheet connected — click Sheet Setup';
+  const t=localStorage.getItem(TSK);
+  document.getElementById('st').textContent=t?'Last synced: '+fmtD(t):'';
+  if(document.getElementById('surl')) document.getElementById('surl').value=u;
+  if(document.getElementById('wurl')) document.getElementById('wurl').value=localStorage.getItem(WSUK)||'';
+  if(document.getElementById('apikey')) document.getElementById('apikey').value=localStorage.getItem(AKK)||'';
+}
+
+function saveApiKey(){
+  const key=(document.getElementById('apikey')?.value||'').trim();
+  if(!key){toast('Enter an API key');return;}
+  localStorage.setItem(AKK,key);
+  toast('✓ API Key saved');
+}
+
+async function syncNow(){
+  const url=getUrl();
+  if(!url){toast('No sheet URL — click Sheet Setup');return;}
+  ss('syncing','Syncing…');
+  try{
+    const csv=await fetchWithFallback(normalizeSheetUrl(url));
+    const r=mergeCSV(csv);
+    save(); localStorage.setItem(TSK,new Date().toISOString());
+    ss('ok',`Synced — +${r.a} added, ${r.u} updated`);
+    refreshSyncUI(); renderAll();
+    toast(`✓ ${r.a} added · ${r.u} updated · ${r.k} unchanged`);
+    setTimeout(()=>ss('ok','Sheet connected'),5000);
+  }catch(e){
+    ss('err','Sync failed');
+    toast('Sync failed: '+e.message);
+  }
+}
+
+// ── CSV PARSE ────────────────────────────────────────────────────────────
+function parseCSV(txt){
+  const lines=txt.trim().split(/\r?\n/);
+  if(lines.length<2) return[];
+  const hdrs=parseRow(lines[0]).map(h=>h.trim().toLowerCase());
+  return lines.slice(1).map(l=>{
+    const v=parseRow(l); const o={};
+    hdrs.forEach((h,i)=>o[h]=(v[i]||'').trim());
+    return o;
+  }).filter(r=>r['contact name']||r['name']||r['full name']);
+}
+function parseRow(row){
+  const r=[];let cur='';let q=false;
+  for(let i=0;i<row.length;i++){
+    const c=row[i];
+    if(c==='"'){if(q&&row[i+1]==='"'){cur+='"';i++;}else q=!q;}
+    else if(c===','&&!q){r.push(cur);cur='';}
+    else cur+=c;
+  }
+  r.push(cur); return r;
+}
+
+function normRow(r){
+  const g=(...keys)=>{ for(const k of keys){ if(r[k]&&r[k].trim()) return r[k].trim(); } return ''; };
+  return{
+    name:     g('contact name','name','full name','contact'),
+    des:      g('designation','title','job title','role','position'),
+    company:  g('company name','company','organization','org'),
+    size:     g('company size','size','employees'),
+    country:  g('country'),
+    city:     g('city','location'),
+    phone:    g('phone','phone number','mobile','contact number'),
+    email:    g('email','email id','email address'),
+    linkedin: g('linkedin url','linkedin','linkedin profile'),
+    source:   normSource(g('source','lead source','leadsouce')),
+    status:   normStatus(g('status','follow up status','followup status')),
+    followup: g('follow-up date','follow up date','followup date','followup','due date'),
+  };
+}
+
+function normStatus(s){
+  if(!s) return'neutral'; s=s.toLowerCase();
+  if(s.includes('convert')) return'converted';
+  if(s.includes('willing')||s.includes('onboard')) return'willing';
+  if(s.includes('meeting')) return'meetings';
+  if(s.includes('positive')) return'positive';
+  if(s.includes('negative')) return'negative';
+  return'neutral';
+}
+function normSource(s){
+  if(!s) return'';
+  s=s.toLowerCase().replace(/\s/g,'_');
+  if(s.includes('linkedin')) return'linkedin';
+  if(s.includes('cold')||s.includes('email')) return'cold_email';
+  if(s.includes('referral')||s.includes('refer')) return'referral';
+  if(s.includes('event')) return'event';
+  if(s.includes('whatsapp')||s.includes('wa')) return'whatsapp';
+  if(s.includes('website')||s.includes('web')) return'website';
+  if(s) return'other';
+  return'';
+}
+
+function mergeCSV(csvTxt){
+  const rows=parseCSV(csvTxt); let a=0,u=0,k=0;
+  rows.forEach(raw=>{
+    const r=normRow(raw); if(!r.name) return;
+    let ex=r.email?contacts.find(c=>c.email&&c.email.toLowerCase()===r.email.toLowerCase()):null;
+    if(!ex) ex=contacts.find(c=>c.name.toLowerCase()===r.name.toLowerCase()&&(c.company||'').toLowerCase()===r.company.toLowerCase());
+    if(ex){
+      const changed=ex.name!==r.name||ex.company!==r.company||ex.phone!==r.phone||ex.email!==r.email||
+        ex.status!==r.status||ex.des!==r.des||ex.country!==r.country||ex.city!==r.city||
+        ex.linkedin!==r.linkedin||ex.source!==r.source||ex.followup!==r.followup||ex.size!==r.size;
+      if(changed){Object.assign(ex,r,{sheetSync:true});u++;}else k++;
+    }else{
+      contacts.push({id:uid(),...r,notes:[],createdAt:new Date().toISOString(),sheetSync:true});a++;
+    }
+  });
+  return{a,u,k};
+}
+
+// ── FOLLOW-UP ALERTS ─────────────────────────────────────────────────────
+function checkFollowUps(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const tomorrow=new Date(today); tomorrow.setDate(today.getDate()+1);
+  const due=contacts.filter(c=>c.followup&&new Date(c.followup)<=today).length;
+  const soon=contacts.filter(c=>{if(!c.followup)return false;const d=new Date(c.followup);return d>today&&d<=tomorrow;}).length;
+  const b=document.getElementById('fuBanner');
+  if(due||soon){
+    b.classList.add('on');
+    document.getElementById('fuText').textContent=
+      [due?`${due} follow-up${due>1?'s':''} overdue or due today`:'',
+       soon?`${soon} due tomorrow`:''].filter(Boolean).join(' · ');
+  }
+}
+function fuClass(dateStr){
+  if(!dateStr) return '';
+  const d=new Date(dateStr); const today=new Date(); today.setHours(0,0,0,0);
+  if(d<today) return 'fu-due';
+  const diff=(d-today)/(1000*60*60*24);
+  if(diff<=2) return 'fu-soon';
+  return 'fu-ok';
+}
+
+// ── FILTER / SEARCH ──────────────────────────────────────────────────────
+function filtered(){
+  const q=document.getElementById('si').value.toLowerCase();
+  return contacts.filter(c=>{
+    const ms=!fStatus||c.status===fStatus;
+    const mq=!q||(c.name||'').toLowerCase().includes(q)||(c.company||'').toLowerCase().includes(q)||
+      (c.email||'').toLowerCase().includes(q)||(c.city||'').toLowerCase().includes(q)||
+      (c.country||'').toLowerCase().includes(q)||(c.des||'').toLowerCase().includes(q);
+    return ms&&mq;
+  });
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────
+function renderStats(){
+  const strip=document.getElementById('statsStrip');
+  const cnt={};Object.keys(ST).forEach(k=>cnt[k]=0);
+  contacts.forEach(c=>{if(cnt[c.status]!==undefined)cnt[c.status]++;});
+  const cards=[
+    {key:'all',label:'Total',num:contacts.length,col:'#2563A8'},
+    ...Object.entries(ST).map(([k,v])=>({key:k,label:v.label,num:cnt[k],col:v.col}))
+  ];
+  strip.innerHTML=cards.map(c=>`
+    <div class="sc${fStatus===c.key||(c.key==='all'&&!fStatus)?' active':''}"
+         onclick="${c.key==='all'?'clearFilter()':`setFilter('${c.key}')`}"
+         style="border-top:3px solid ${c.col}">
+      <div class="sc-lbl">${c.label}</div>
+      <div class="sc-num" style="color:${c.col}">${c.num}</div>
+    </div>`).join('');
+}
+
+function setFilter(s){fStatus=s;document.getElementById('flabel').textContent='Filter: '+ST[s]?.label;document.getElementById('fp').classList.add('on');renderAll();}
+function clearFilter(){fStatus=null;document.getElementById('fp').classList.remove('on');renderAll();}
+
+// ── QUICK ACTIONS ────────────────────────────────────────────────────────
+function quickActions(c){
+  const ph=c.phone?c.phone.replace(/\s+/g,''):'';
+  const em=c.email||'';
+  const callBtn=ph
+    ?`<a class="qa qa-call" href="tel:${ph}" title="Call ${e(c.name)}">📞</a>`
+    :`<span class="qa qa-disabled" title="No phone number">📞</span>`;
+  const smsBtn=ph
+    ?`<a class="qa qa-sms" href="sms:${ph}" title="SMS ${e(c.name)}">💬</a>`
+    :`<span class="qa qa-disabled" title="No phone number">💬</span>`;
+  const waBtn=ph
+    ?`<a class="qa qa-wa" href="https://wa.me/${ph.replace(/[^0-9]/g,'')}" target="_blank" rel="noopener" title="WhatsApp ${e(c.name)}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>`
+    :`<span class="qa qa-disabled" title="No phone number"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>`;
+  const emailBtn=em
+    ?`<a class="qa qa-email" href="mailto:${em}" title="Email ${e(c.name)}">✉️</a>`
+    :`<span class="qa qa-disabled" title="No email">✉️</span>`;
+  return callBtn+smsBtn+waBtn+emailBtn;
+}
+
+// â”€â”€ TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function renderTable(){
+  const list=filtered(); const tb=document.getElementById('tb');
+  if(!list.length){
+    tb.innerHTML=`<tr><td colspan="16" style="padding:0"><div class="empty">
+      <h3>No contacts yet</h3><p>Connect your Google Sheet or add manually.</p>
+      <button class="btn btn-p" onclick="openAdd()">+ Add Contact</button>
+    </div></td></tr>`;return;
+  }
+  tb.innerHTML=list.map((c,i)=>{
+    const s=ST[c.status]||ST.neutral;
+    const src=c.source&&SRC[c.source]?`<span class="src-chip ${SRC[c.source].cls}">${SRC[c.source].label}</span>`:`<span style="color:var(--muted);font-size:12px">—</span>`;
+    const nc=(c.notes||[]).length;
+    const fuCls=fuClass(c.followup);
+    const liLink=c.linkedin?`<a class="li-link" href="${e(c.linkedin)}" target="_blank" rel="noopener">ðŸ”— View</a>`:'â€”';
+    return`<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td class="nm">${e(c.name)}</td>
+      <td class="des">${e(c.des||'â€”')}</td>
+      <td class="co">${e(c.company)}</td>
+      <td class="co">${e(c.country||'â€”')}</td>
+      <td class="co">${e(c.city||'â€”')}</td>
+      <td class="mn">${e(c.phone||'â€”')}</td>
+      <td class="mn">${e(c.email||'â€”')}</td>
+      <td>${liLink}</td>
+      <td class="co">${e(c.size||'â€”')}</td>
+      <td>${src}</td>
+      <td><select class="status-sel ${s.cls}" onchange="quickStatus('${c.id}',this.value)" onclick="event.stopPropagation()">
+        ${Object.entries(ST).map(([k,v])=>`<option value="${k}"${c.status===k?' selected':''}>${v.label}</option>`).join('')}
+      </select></td>
+      <td style="font-size:12px">${fuTxt}</td>
+      <td style="font-size:12px">${c.futype?fuTypeChip(c.futype):'â€”'}</td>
+      <td style="font-size:12px">${c.lastcontact?`<span class="fu-ok">${formatDate(c.lastcontact)}</span>`:'â€”'}</td>
+      <td style="font-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${e(c.funotes||'')}">${e(c.funotes||'â€”')}</td>
+      <td><div class="qa-wrap">${quickActions(c)}</div></td>
+      <td><button class="btn btn-o btn-sm" onclick="openNotes('${c.id}')">ðŸ“ ${nc||'Add'}</button></td>
+      <td><div class="abts">
+        <button class="btn btn-o btn-sm" onclick="openEdit('${c.id}')">Edit</button>
+        <button class="btn btn-d btn-sm" onclick="openDel('${c.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// â”€â”€ KANBAN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function renderKanban(){
+  const list=filtered();
+  document.getElementById('kb').innerHTML=Object.entries(ST).map(([key,meta])=>{
+    const cards=list.filter(c=>c.status===key);
+    const html=cards.length
+      ?cards.map(c=>{
+          const ln=c.notes?.length?c.notes[c.notes.length-1].text:null;
+          const fuCls=fuClass(c.followup);
+          const fuTag=c.followup&&(fuCls==='fu-due'||fuCls==='fu-soon')
+            ?`<span class="kc-fu ${fuCls==='fu-due'?'due':'soon'}">ðŸ“… ${formatDate(c.followup)}</span>`:''
+          return`<div class="kcard" onclick="openEdit('${c.id}')">
+            <div class="kc-name">${e(c.name)}</div>
+            ${c.des?`<div class="kc-des">${e(c.des)}</div>`:''}
+            <div class="kc-co">${e(c.company)}</div>
+            ${(c.city||c.country)?`<div class="kc-loc">ðŸ“ ${e([c.city,c.country].filter(Boolean).join(', '))}</div>`:''}
+            ${fuTag}
+            ${ln?`<div class="kc-note">ðŸ’¬ ${e(ln)}</div>`:''}
+          </div>`;}).join('')
+      :`<div style="text-align:center;padding:10px;font-size:11px;color:var(--muted)">Empty</div>`;
+    return`<div class="kcol">
+      <div class="khead"><div class="ktitle" style="color:${meta.col}">${meta.label}</div><span class="kcnt">${cards.length}</span></div>
+      <div class="kbody">${html}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){renderStats();view==='table'?renderTable():renderKanban();}
+function setView(v){
+  view=v;
+  document.getElementById('tv').style.display=v==='table'?'block':'none';
+  document.getElementById('kv').style.display=v==='kanban'?'block':'none';
+  document.getElementById('bt').classList.toggle('active',v==='table');
+  document.getElementById('bk').classList.toggle('active',v==='kanban');
+  renderAll();
+}
+
+// â”€â”€ ADD / EDIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const FIELDS=['name','des','co','size','country','city','phone','email','li','src','status','fu','futype','lastcontact','funotes'];
+function openAdd(){
+  editId=null;
+  document.getElementById('ftitle').textContent='Add Contact';
+  FIELDS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=''; });
+  document.getElementById('f-status').value='neutral';
+  document.getElementById('formModal').classList.add('open');
+}
+function openEdit(id){
+  const c=contacts.find(x=>x.id===id);if(!c)return;
+  editId=id;
+  document.getElementById('ftitle').textContent='Edit Contact';
+  document.getElementById('f-name').value=c.name||'';
+  document.getElementById('f-des').value=c.des||'';
+  document.getElementById('f-co').value=c.company||'';
+  document.getElementById('f-size').value=c.size||'';
+  document.getElementById('f-country').value=c.country||'';
+  document.getElementById('f-city').value=c.city||'';
+  document.getElementById('f-phone').value=c.phone||'';
+  document.getElementById('f-email').value=c.email||'';
+  document.getElementById('f-li').value=c.linkedin||'';
+  document.getElementById('f-src').value=c.source||'';
+  document.getElementById('f-status').value=c.status||'neutral';
+  document.getElementById('f-fu').value=c.followup||'';
+  document.getElementById('f-futype').value=c.futype||'';
+  document.getElementById('f-lastcontact').value=c.lastcontact||'';
+  document.getElementById('f-funotes').value=c.funotes||'';
+  document.getElementById('formModal').classList.add('open');
+}
+async function saveContact(){
+  const name=document.getElementById('f-name').value.trim();
+  const company=document.getElementById('f-co').value.trim();
+  if(!name){toast('Contact name required');return;}
+  if(!company){toast('Company name required');return;}
+  const d={
+    name, company,
+    des:document.getElementById('f-des').value.trim(),
+    size:document.getElementById('f-size').value.trim(),
+    country:document.getElementById('f-country').value.trim(),
+    city:document.getElementById('f-city').value.trim(),
+    phone:document.getElementById('f-phone').value.trim(),
+    email:document.getElementById('f-email').value.trim(),
+    linkedin:document.getElementById('f-li').value.trim(),
+    source:document.getElementById('f-src').value,
+    status:document.getElementById('f-status').value,
+    followup:document.getElementById('f-fu').value,
+    futype:document.getElementById('f-futype').value,
+    lastcontact:document.getElementById('f-lastcontact').value,
+    funotes:document.getElementById('f-funotes').value.trim(),
+  };
+  if(editId){
+    const i=contacts.findIndex(x=>x.id===editId);
+    contacts[i]={...contacts[i],...d};
+    toast('Updated ✓ (local)');
+  }
+  else{
+    const c={id:uid(),...d,notes:[],createdAt:new Date().toISOString()};
+    contacts.push(c);
+    try{
+      await pushToSheet({
+        id:c.id,
+        name:c.name,
+        des:c.des,
+        company:c.company,
+        size:c.size,
+        country:c.country,
+        city:c.city,
+        phone:c.phone,
+        email:c.email,
+        linkedin:c.linkedin,
+        source:c.source,
+        status:c.status,
+        followup:c.followup,
+        futype:c.futype,
+        lastcontact:c.lastcontact,
+        funotes:c.funotes,
+        createdAt:c.createdAt,
+      });
+      toast('Contact added ✓ (sheet updated)');
+    }catch(e){
+      toast('Added locally, but sheet write failed: '+e.message);
+    }
+  }
+  save();cm('formModal');renderAll();checkFollowUps();
+}
+
+// â”€â”€ QUICK STATUS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function quickStatus(id, val){
+  const c=contacts.find(x=>x.id===id); if(!c) return;
+  c.status=val; save(); renderAll();
+  toast(`âœ“ ${c.name} â†’ ${ST[val]?.label}`);
+}
+
+// â”€â”€ NOTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openNotes(id){
+  noteId=id;const c=contacts.find(x=>x.id===id);
+  document.getElementById('ntitle').textContent='Notes â€” '+c.name;
+  document.getElementById('nt').value='';
+  rnl(c);document.getElementById('notesModal').classList.add('open');
+}
+function rnl(c){
+  const el=document.getElementById('nlist'),notes=c.notes||[];
+  el.innerHTML=notes.length
+    ?[...notes].reverse().map(n=>`<div class="ni"><div class="nm">${fmtD(n.date)}</div><div class="nt">${e(n.text)}</div></div>`).join('')
+    :`<div class="enotes">No notes yet.</div>`;
+}
+function saveNote(){
+  const txt=document.getElementById('nt').value.trim();
+  if(!txt){toast('Type a note first');return;}
+  const c=contacts.find(x=>x.id===noteId);
+  if(!c.notes)c.notes=[];
+  c.notes.push({date:new Date().toISOString(),text:txt});
+  save();toast('Note saved âœ“');document.getElementById('nt').value='';
+  rnl(c);renderAll();
+}
+
+// â”€â”€ DELETE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function openDel(id){delId=id;document.getElementById('dname').textContent=contacts.find(x=>x.id===id)?.name||'';document.getElementById('delModal').classList.add('open');}
+function confirmDel(){contacts=contacts.filter(x=>x.id!==delId);save();cm('delModal');renderAll();toast('Deleted');}
+
+// ── SETUP ────────────────────────────────────────────────────────────
+function openSetup(){
+  document.getElementById('surl').value=getUrl();
+  document.getElementById('wurl').value=localStorage.getItem(WSUK)||'';
+  document.getElementById('apikey').value=localStorage.getItem(AKK)||'';
+  document.getElementById('setupModal').classList.add('open');
+}
+function saveUrl(){
+  const url=normalizeSheetUrl(document.getElementById('surl').value);
+  if(!url){toast('Paste a URL first');return;}
+  if(!url.includes('docs.google.com')){toast('Doesn\'t look like a Google Sheets URL');return;}
+  
+  const wurl=(document.getElementById('wurl')?.value||'').trim();
+  if(wurl){
+    localStorage.setItem(WSUK,wurl);
+  } else {
+    localStorage.removeItem(WSUK);
+  }
+  
+  localStorage.setItem(URLK,url);
+  refreshSyncUI();
+  cm('setupModal');
+  syncNow();
+}
+
+// â”€â”€ EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function exportCSV(){
+  const list=filtered();if(!list.length){toast('Nothing to export');return;}
+  const h=['Contact Name','Designation','Company','Company Size','Country','City','Query','Location','Phone','Email','LinkedIn URL','Lead Source','Status','Follow-up Date','Follow-up Type','Last Contacted','Follow-up Notes','Notes Count','Last Note'];
+  const rows=list.map(c=>[
+    c.name,c.des||'',c.company,c.size||'',c.country||'',c.city||'',c.query||'',c.location||'',c.phone||'',c.email||'',c.linkedin||'',
+    SRC[c.source]?.label||c.source||'',
+    ST[c.status]?.label||c.status,
+    c.followup||'',c.futype||'',c.lastcontact||'',c.funotes||'',
+    (c.notes||[]).length,
+    c.notes?.length?c.notes[c.notes.length-1].text:''
+  ]);
+  const csv=[h,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    'LinkedIn URL','Lead Source','Status','Follow-up Date','Follow-up Type','Last Contacted','Follow-up Notes','Notes Count','Last Note'];
+  const rows=list.map(c=>[
+    c.name,c.des||'',c.company,c.size||'',c.country||'',c.city||'',
+    c.phone||'',c.email||'',c.linkedin||'',
+    SRC[c.source]?.label||c.source||'',
+    ST[c.status]?.label||c.status,
+    c.followup||'',c.futype||'',c.lastcontact||'',c.funotes||'',
+    (c.notes||[]).length,
+    c.notes?.length?c.notes[c.notes.length-1].text:''
+  ]);
+  const csv=[h,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='SCM-BPO-CRM-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();toast('Exported âœ“');
+}
+
+// â”€â”€ UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function fuTypeChip(t){
+  const map={email:['ðŸ“§','#DBEAFE','#1D4ED8'],call:['ðŸ“ž','#D1FAE5','#065F46'],
+    whatsapp:['ðŸ’¬','#DCFCE7','#15803D'],linkedin:['ðŸ”—','#EDE9FE','#6D28D9'],meeting:['ðŸ¤','#FEF3C7','#92400E']};
+  const m=map[t]; if(!m) return t;
+  return`<span style="font-size:10.5px;padding:2px 8px;border-radius:12px;background:${m[1]};color:${m[2]};font-weight:600">${m[0]} ${t.charAt(0).toUpperCase()+t.slice(1)}</span>`;
+}
+function cm(id){document.getElementById(id).classList.remove('open');}
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtD(iso){try{return new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
+function formatDate(str){if(!str)return'';try{const d=new Date(str);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch{return str;}}
+let tt;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('on'),2800);}
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',ev=>{if(ev.target===el)el.classList.remove('open');}));
+
+// â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+load();refreshSyncUI();
+const sheetUrl=getUrl();
+if(sheetUrl){ss('syncing','Auto-syncingâ€¦');syncNow();}
+else ss('idle','No sheet connected');
+renderAll();
+checkFollowUps();
+</script>
+</body>
+</html>
